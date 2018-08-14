@@ -43,7 +43,7 @@ Yep 3. Make a JavaScript file named `keys.js`.
 - Inside keys.js your file will look like this:
 
 ```js
-console.log('this is loaded');
+console.log("this is loaded");
 
 exports.twitter = {
   consumer_key: process.env.TWITTER_CONSUMER_KEY,
@@ -103,7 +103,7 @@ TWITTER_ACCESS_TOKEN_SECRET=your-twitter-access-token-secret
 8. At the top of the `liri.js` file, add code to read and set any environment variables with the dotenv package:
 
 ```js
-require('dotenv').config();
+require("dotenv").config();
 ```
 
 9. Add the code required to import the `keys.js` file and store it in a variable.

@@ -1,4 +1,4 @@
-console.log('Beam me up Scottie');
+console.log("Beam me up Scottie");
 
 exports.twitter = {
   consumer_key: process.env.TWITTER_CONSUMER_KEY,
@@ -12,7 +12,6 @@ exports.spotify = {
   secret: process.env.SPOTIFY_SECRET
 };
 
-// module.exports = {
-//   twitter: twitter,
-//   spotify: spotify
-// };
+exports.omdnAPI = {
+  key: process.env.API_KEY
+};
