@@ -42,7 +42,7 @@ switch (liriVariable) {
 
 // Tweet Function
 function mytweets(params) {
-  var params = { screen_name: 'justhayleys' };
+  var params = { screen_name: '@captain_code67' };
   client.get('statuses/user_timeline', params, function(
     error,
     tweets,
