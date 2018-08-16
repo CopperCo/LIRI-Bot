@@ -1,159 +1,166 @@
 // Variables + Important Items
-require('dotenv').config();
-const fs = require('fs');
-const request = require('request');
-const keys = require('./keys.js');
+require("dotenv").config();
+const fs = require("fs");
+const request = require("request");
+const keys = require("./keys.js");
 
 //Spotify
-var Spotify = require('node-spotify-api');
-var spotify = new Spotify({
+let Spotify = require("node-spotify-api");
+let spotify = new Spotify({
   id: process.env.SPOTIFY_ID,
   secret: process.env.SPOTIFY_SECRET
 });
 
 // Twitter
-var client = new Twitter({
+let Twitter = require("twitter");
+let client = new Twitter({
   consumer_key: process.env.TWITTER_CONSUMER_KEY,
   consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
   access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
   access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
 });
 
-const liriVariable = process.argv[2];
+runLiriBot(process.argv[2], process.argv[3]);
 
-// The Switch Case to determine the actions taken based on the argv entered
-switch (liriVariable) {
-  case 'my-tweets':
-    mytweets();
-    break;
+function runLiriBot(liriAction, liriValue) {
+  // The Switch Case to determine the actions taken based on the argv entered
+  switch (liriAction) {
+    case "my-tweets":
+      mytweets();
+      break;
 
-  case 'spotify-this-song':
-    spotifySong();
-    break;
+    case "spotify-this-song":
+      spotifySong(liriValue);
+      break;
 
-  case 'movie-this':
-    movieInfo();
-    break;
+    case "movie-this":
+      movieInfo(liriValue);
+      break;
 
-  case 'do-what-it-says':
-    dowhatitsays();
-    break;
+    case "do-what-it-says":
+      doWhatItSays();
+      break;
+  }
 }
 
 // Tweet Function
-function mytweets(params) {
-  var params = { screen_name: '@captain_code67' };
-  client.get('statuses/user_timeline', params, function(
+function mytweets() {
+  let params = { screen_name: "@captain_code67", count: 20 };
+  client.get("statuses/user_timeline", params, function(
     error,
     tweets,
     response
   ) {
     if (!error) {
-      console.log(tweets);
+      console.log(`You've tweeted:`);
+      tweets.forEach(tweet => {
+        console.log(
+          `Tweet: ${tweet.text}  \r\n Created at: ${tweet.created_at}`
+        );
+        console.log(`------------`);
+      });
     }
   });
 }
 
-// Functions
-function spotifySong(params) {
-  let songName = process.argv[3];
-  if (!songName) {
-    songName = 'Ace of Base - The Sign ';
-  }
-  params = songName;
-  spotify.search({ type: 'track', query: params }, function(err, data) {
+// Spotify Function
+function spotifySong(songName = "Ace of Base - The Sign ") {
+  spotify.search({ type: "track", query: songName, limit: 1 }, function(
+    err,
+    data
+  ) {
     if (!err) {
       var songInfo = data.tracks.items;
 
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 2; i++) {
         if (songInfo[i] != undefined) {
           let spotifyResults =
-            '------------- YOUR REQUEST BELOW --------------- ' +
-            '\r\n' +
-            'Artist: ' +
+            "Here is the snashot about your song:  " +
+            "\r\n" +
+            "Artist: " +
             songInfo[i].artists[0].name +
-            '\r\n' +
-            'Song: ' +
+            "\r\n" +
+            "Song: " +
             songInfo[i].name +
-            '\r\n' +
-            'Album the song is from: ' +
+            "\r\n" +
+            "Album the song is from: " +
             songInfo[i].album.name +
-            '\r\n' +
-            'Preview Url: ' +
+            "\r\n" +
+            "Wanna listen? Preview Url: " +
             songInfo[i].preview_url +
-            '\r\n' +
-            '------------- END OF REQUEST --------------- ' +
-            '\r\n';
+            "\r\n";
           console.log(spotifyResults);
         }
       }
     } else {
-      console.log('Error :' + err);
+      console.log("Error :" + err);
       return;
     }
   });
 }
 
-function movieInfo(params) {
+function movieInfo(movieName = "Mr+Nobody") {
   // OMDB API KEY
   const omdbKey = keys.omdnAPI.key;
-  console.log(`Your key is ${omdbKey}`);
-
-  let movieName = process.argv[3];
 
   let url =
-    'http://www.omdbapi.com/?apikey=' +
-    omdbKey +
-    '&/?t=' +
+    "https://www.omdbapi.com/?t=" +
     movieName +
-    '&y=&plot=short&r=json';
-  console.log(url);
+    "&y=&plot=short&r=json&apikey=" +
+    omdbKey;
 
-  if (!movieName) {
-    movieName = 'Mr. Nobody.';
-  }
-  params = movieName;
-  request(
-    'http://www.omdbapi.com/?apikey=' +
-      omdbKey +
-      '&/?t=' +
-      movieName +
-      '&y=&plot=short&r=json',
-    function(error, response, body) {
-      if (!error && response.statusCode == 200) {
-        var movieObject = JSON.parse(body);
+  request(url, function(error, response, body) {
+    if (!error && response.statusCode == 200) {
+      let movieObject = JSON.parse(body);
 
-        var movieResults =
-          '------------------------------ begin ------------------------------' +
-          '\r\n';
-        'Title: ' +
-          movieObject.Title +
-          '\r\n' +
-          'Year: ' +
-          movieObject.Year +
-          '\r\n' +
-          'Imdb Rating: ' +
-          movieObject.imdbRating +
-          '\r\n' +
-          'Country: ' +
-          movieObject.Country +
-          '\r\n' +
-          'Language: ' +
-          movieObject.Language +
-          '\r\n' +
-          'Plot: ' +
-          movieObject.Plot +
-          '\r\n' +
-          'Actors: ' +
-          movieObject.Actors +
-          '\r\n' +
-          '------------------------------ end ------------------------------' +
-          '\r\n';
-        console.log(movieResults);
-      } else {
-        console.log('Error :' + error);
-        return;
-      }
+      console.log("The movie you requested:");
+
+      let movieResult =
+        "Movie Title: " +
+        movieObject.Title +
+        "\r\n" +
+        "Year: " +
+        movieObject.Year +
+        "\r\n" +
+        "Imdb Rating: " +
+        movieObject.imdbRating +
+        "\r\n" +
+        "Country: " +
+        movieObject.Country +
+        "\r\n" +
+        "Language: " +
+        movieObject.Language +
+        "\r\n" +
+        "The Plot: " +
+        movieObject.Plot +
+        "\r\n" +
+        "Cast: " +
+        movieObject.Actors +
+        "\r\n" +
+        "Did you know: Hayley thinks " +
+        movieObject.Title +
+        " was a good movie";
+
+      console.log(movieResult);
+    } else {
+      console.log("Error :" + error);
+      return;
     }
-  );
+  });
+}
+
+// do-what-it-says Function
+
+function doWhatItSays() {
+  fs.readFile("random.txt", "utf8", function(error, data) {
+    if (error) {
+      return console.log(error);
+    }
+
+    let dataArr = data.split(",");
+    let liriAction = dataArr[0];
+    let liriValue = dataArr[1];
+
+    runLiriBot(liriAction, liriValue);
+  });
 }
